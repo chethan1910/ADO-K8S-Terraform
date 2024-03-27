@@ -22,6 +22,7 @@ stages:
   - job: BuildJob
     steps:
     - bash: echo Do the build
+    
 - stage: DeployDev
   jobs:
   - deployment: DeployDev
