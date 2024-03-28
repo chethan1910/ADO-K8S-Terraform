@@ -1,0 +1,37 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo K8S ADO Pipeline!!
+  displayName: 'Run a one-line script'
+
+- task: DownloadSecureFile@1
+  name: publickey
+  inputs:
+    secureFile: 'terraformkey.pub'
+    retryCount: '5'
+
+- task: TerraformCLI@2
+  inputs:
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/azure/kubernetes'
+    commandOptions: '-var "client_id=$(client_id)" -var "client_secret=$(client_secret)" -var "ssh_public_key=$(publickey.secureFilePath)"'
+    backendType: 'azurerm'
+    backendServiceArm: 'AzureServiceConnection'
+    backendAzureRmTenantId: 'd48fa67a-6d93-43bf-a947-4e4b67f46d52'
+    backendAzureRmSubscriptionId: '8514fed5-4485-45e3-bb86-8ea6713ae559'
+    ensureBackend: true
+    backendAzureRmResourceGroupName: 'Training'
+    backendAzureRmResourceGroupLocation: 'EastUS'
+    backendAzureRmStorageAccountName: 'adok8s001'
+    backendAzureRmContainerName: 'kubernetes-iaac'
+    backendAzureRmKey: 'kubernetes-iaac.tfstate'
+    allowTelemetryCollection: true
